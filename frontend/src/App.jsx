@@ -50,10 +50,14 @@ function AppRoutes() {
 
 function App() {
   const checkSession = useAuthStore(state => state.checkSession)
+  const logout = useAuthStore(state => state.logout)
 
   useEffect(() => {
-    checkSession()
-  }, [checkSession])
+    // Force logout every time the website is opened
+    logout().then(() => {
+      checkSession()
+    })
+  }, [checkSession, logout])
 
   return (
     <Router>
