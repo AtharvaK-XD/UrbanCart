@@ -27,7 +27,7 @@ export default function Checkout() {
     } catch (e) {
       console.error(e)
     }
-    return 'merchant@upi'
+    return '9662743525@ptaxis'
   })
 
   const [payeeName, setPayeeName] = useState(() => {

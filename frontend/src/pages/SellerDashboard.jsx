@@ -188,7 +188,7 @@ const DEFAULT_ORDERS = [
 const DEFAULT_PAYOUTS = [
   { id: "PAY-19283", date: "2026-06-01", amount: 1540.20, method: "Bank Transfer", account: "HDFC Bank - *8723", status: "Completed" },
   { id: "PAY-19254", date: "2026-05-15", amount: 3200.50, method: "Bank Transfer", account: "HDFC Bank - *8723", status: "Completed" },
-  { id: "PAY-19112", date: "2026-05-01", amount: 940.00, method: "UPI Payout", account: "merchant@upi", status: "Completed" }
+  { id: "PAY-19112", date: "2026-05-01", amount: 940.00, method: "UPI Payout", account: "9662743525@ptaxis", status: "Completed" }
 ]
 
 const DEFAULT_NOTIFICATIONS = [
@@ -313,7 +313,7 @@ export default function SellerDashboard() {
     accountName: user ? user.name : 'Store Merchant',
     accountNumber: '•••• •••• •••• 8723',
     ifscCode: 'HDFC0000241',
-    upiId: 'merchant@upi'
+    upiId: '9662743525@ptaxis'
   })
 
   const [shopSettings, setShopSettings] = useState({
