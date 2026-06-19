@@ -1,0 +1,53 @@
+[
+  {
+    "id": "ORD-8472",
+    "date": "2024-01-15T10:30:00Z",
+    "customer": "Michael Scott",
+    "total": 45.00,
+    "status": "Processing",
+    "items": [
+      {
+        "productId": "p1",
+        "title": "Minimalist Ceramic Vases",
+        "quantity": 1,
+        "price": 45.00
+      }
+    ]
+  },
+  {
+    "id": "ORD-8473",
+    "date": "2024-01-14T14:20:00Z",
+    "customer": "Jim Halpert",
+    "total": 125.49,
+    "status": "Shipped",
+    "items": [
+      {
+        "productId": "p2",
+        "title": "Linen Throw Blanket",
+        "quantity": 1,
+        "price": 89.99
+      },
+      {
+        "productId": "p3",
+        "title": "Matte Black Pour-Over Kettle",
+        "quantity": 1,
+        "price": 35.50
+      }
+    ]
+  },
+  {
+    "id": "ORD-8470",
+    "date": "2024-01-10T09:15:00Z",
+    "customer": "Pam Beesly",
+    "total": 28.00,
+    "status": "Delivered",
+    "items": [
+      {
+        "productId": "p5",
+        "title": "Ribbed Glass Tumblers (Set of 4)",
+        "quantity": 1,
+        "price": 28.00
+      }
+    ]
+  }
+]
