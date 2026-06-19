@@ -53,10 +53,16 @@ function App() {
   const logout = useAuthStore(state => state.logout)
 
   useEffect(() => {
-    // Force logout every time the website is opened
-    logout().then(() => {
+    // Force logout every time the website is opened in a new tab/session,
+    // but don't log them out if they are returning from Google OAuth
+    if (!sessionStorage.getItem('has_forced_logout')) {
+      sessionStorage.setItem('has_forced_logout', 'true');
+      logout().then(() => {
+        checkSession()
+      })
+    } else {
       checkSession()
-    })
+    }
   }, [checkSession, logout])
 
   return (
