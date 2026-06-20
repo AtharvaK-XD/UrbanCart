@@ -96,7 +96,11 @@ Follow these steps to run the application locally:
 
 ### 1. Clone the project and enter the directory
 ```bash
+<<<<<<< HEAD
 git clone https://github.com/your-username/UrbanCart.git
+=======
+git clone https://github.com/AtharvaK-XD/UrbanCart.git
+>>>>>>> 8cdeb420f03dbf1d0d42cc47885f930b5bb35918
 cd UrbanCart/frontend
 ```
 
@@ -127,4 +131,8 @@ Open your browser and navigate to `http://localhost:5173`.
 
 ## 🛡️ License
 
+<<<<<<< HEAD
 Distributed under the MIT License. See `LICENSE` for more information.
+=======
+Distributed under the MIT License. See `LICENSE` for more information.
+>>>>>>> 8cdeb420f03dbf1d0d42cc47885f930b5bb35918
