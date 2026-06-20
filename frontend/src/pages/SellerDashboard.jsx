@@ -319,6 +319,9 @@ export default function SellerDashboard() {
             .eq('id', user.id)
             .single()
 
+          // Show detailed debug information about the session roles
+          showFeedback(`Debug Info: UID=${user.id.substring(0,8)} Zustand=${role} DB=${dbProfile?.role} Err=${profileErr?.message || 'none'}`)
+
           if (profileErr) {
             console.error('Error fetching database profile:', profileErr)
             showFeedback(`Profile Fetch Error: ${profileErr.message}`, 'error')
