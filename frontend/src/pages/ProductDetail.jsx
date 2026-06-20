@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { ShoppingCart, ShieldCheck, Truck, ChevronDown, Star, ZoomIn } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
-import productsData from '../data/products.json'
+import { getProductById } from '../lib/db'
 import reviewsData from '../data/reviews.json'
 import { useCartStore } from '../store/useCartStore'
 import Breadcrumbs from '../components/Breadcrumbs'
@@ -33,10 +33,13 @@ export default function ProductDetail() {
   const openCart = useCartStore(state => state.openCart)
 
   useEffect(() => {
-    const p = productsData.find(x => x.id === id) || productsData[0]
-    setProduct(p)
-    setReviews(reviewsData.filter(r => r.productId === p.id))
-    setActiveImageIdx(0)
+    getProductById(id).then(p => {
+      if (p) {
+        setProduct(p)
+        setReviews(reviewsData.filter(r => r.productId === p.id))
+      }
+      setActiveImageIdx(0)
+    })
   }, [id])
 
   if (!product) return <div className="p-12 text-center text-ink opacity-70">Loading detailed page...</div>

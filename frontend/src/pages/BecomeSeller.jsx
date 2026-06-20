@@ -5,6 +5,7 @@ import { Landmark, ArrowRight, CheckCircle2, TrendingUp, Users, ShieldAlert, Awa
 import { account } from '../lib/appwrite'
 import { useAuthStore } from '../store/useAuthStore'
 import Toast from '../components/Toast'
+import { supabase, isSupabaseLinked } from '../lib/db'
 
 export default function BecomeSeller() {
   const navigate = useNavigate()
@@ -43,6 +44,22 @@ export default function BecomeSeller() {
 
       // 2. Update Zustand store role state
       setRole('SELLER')
+
+      // 3. Update profile in Supabase
+      if (isSupabaseLinked && user) {
+        try {
+          await supabase
+            .from('profiles')
+            .update({ role: 'SELLER' })
+            .eq('id', user.id)
+            
+          await supabase.auth.updateUser({
+            data: { role: 'SELLER' }
+          })
+        } catch (supabaseErr) {
+          console.warn('Supabase role update error:', supabaseErr.message)
+        }
+      }
       
       // 3. Show success and navigate
       setShowToast(true)

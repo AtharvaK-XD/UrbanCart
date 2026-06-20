@@ -42,6 +42,7 @@ import {
   Moon
 } from 'lucide-react'
 import { useAuthStore } from '../store/useAuthStore'
+import { supabase, isSupabaseLinked, getOrders, requestPayout } from '../lib/db'
 
 // Initial mock datasets (persisted in localStorage)
 const DEFAULT_PRODUCTS = [
@@ -307,6 +308,46 @@ export default function SellerDashboard() {
 
   const [walletBalance, setWalletBalance] = useState(4850.50)
 
+  useEffect(() => {
+    async function fetchDatabaseData() {
+      if (isSupabaseLinked && user) {
+        try {
+          // Fetch products
+          const { data: dbProducts, error: prodErr } = await supabase
+            .from('products')
+            .select('*')
+            .eq('seller_id', user.id)
+            
+          if (!prodErr && dbProducts) {
+            setProducts(dbProducts.map(p => ({
+              id: p.id,
+              sku: p.sku || `UC-${p.category.slice(0,3).toUpperCase()}-${p.id.slice(0,4).toUpperCase()}`,
+              title: p.title,
+              price: Number(p.price),
+              category: p.category,
+              inStock: p.stock_count > 0,
+              stockCount: p.stock_count,
+              rating: Number(p.rating),
+              sales: p.sales || 0,
+              image: p.image,
+              brand: p.brand,
+              description: p.description
+            })))
+          }
+
+          // Fetch orders
+          const liveOrders = await getOrders(user.id, true)
+          if (liveOrders) {
+            setOrders(liveOrders)
+          }
+        } catch (e) {
+          console.error("Dashboard DB fetch error:", e)
+        }
+      }
+    }
+    fetchDatabaseData()
+  }, [user])
+
   const [bankDetails, setBankDetails] = useState({
     payoutMethod: 'bank', // bank or upi
     bankName: 'HDFC Bank',
@@ -529,31 +570,71 @@ export default function SellerDashboard() {
   }
 
   // Inventory actions
-  const handleIncrementStock = (id) => {
-    setProducts(products.map(p => p.id === id ? { ...p, stockCount: p.stockCount + 1, inStock: true } : p))
-  }
+  const handleIncrementStock = async (id) => {
+    const matched = products.find(p => p.id === id)
+    if (!matched) return
+    const newCount = matched.stockCount + 1
 
-  const handleDecrementStock = (id) => {
-    setProducts(products.map(p => {
-      if (p.id === id) {
-        const newCount = Math.max(0, p.stockCount - 1)
-        return { ...p, stockCount: newCount, inStock: newCount > 0 }
+    if (isSupabaseLinked) {
+      try {
+        const { error } = await supabase
+          .from('products')
+          .update({ stock_count: newCount })
+          .eq('id', id)
+        if (error) throw error
+      } catch (err) {
+        console.error("DB increment stock error:", err.message)
+        return
       }
-      return p
-    }))
+    }
+    setProducts(products.map(p => p.id === id ? { ...p, stockCount: newCount, inStock: true } : p))
   }
 
-  const handleInlinePriceChange = (id, value) => {
+  const handleDecrementStock = async (id) => {
+    const matched = products.find(p => p.id === id)
+    if (!matched) return
+    const newCount = Math.max(0, matched.stockCount - 1)
+
+    if (isSupabaseLinked) {
+      try {
+        const { error } = await supabase
+          .from('products')
+          .update({ stock_count: newCount })
+          .eq('id', id)
+        if (error) throw error
+      } catch (err) {
+        console.error("DB decrement stock error:", err.message)
+        return
+      }
+    }
+    setProducts(products.map(p => p.id === id ? { ...p, stockCount: newCount, inStock: newCount > 0 } : p))
+  }
+
+  const handleInlinePriceChange = async (id, value) => {
     const parsed = parseFloat(value)
     if (isNaN(parsed) || parsed <= 0) {
       showFeedback('Please enter a valid price.', 'error')
       return
     }
+
+    if (isSupabaseLinked) {
+      try {
+        const { error } = await supabase
+          .from('products')
+          .update({ price: parsed })
+          .eq('id', id)
+        if (error) throw error
+      } catch (err) {
+        console.error("DB price change error:", err.message)
+        showFeedback('Failed to update price in database.', 'error')
+        return
+      }
+    }
     setProducts(products.map(p => p.id === id ? { ...p, price: parsed } : p))
     showFeedback('Price updated successfully!')
   }
 
-  const handleAddProduct = (e) => {
+  const handleAddProduct = async (e) => {
     e.preventDefault()
     if (!newProduct.title || !newProduct.price) {
       showFeedback('Title and price are required.', 'error')
@@ -562,8 +643,38 @@ export default function SellerDashboard() {
 
     const skuCode = newProduct.sku || `UC-${newProduct.category.slice(0,3).toUpperCase()}-${Math.floor(100+Math.random()*900)}`
     
+    let generatedId = `PROD-${Math.floor(107 + Math.random() * 900)}`
+
+    if (isSupabaseLinked && user) {
+      try {
+        const { data, error } = await supabase
+          .from('products')
+          .insert([
+            {
+              seller_id: user.id,
+              title: newProduct.title,
+              brand: newProduct.brand || 'Generic',
+              price: parseFloat(newProduct.price),
+              category: newProduct.category,
+              stock_count: parseInt(newProduct.stockCount) || 0,
+              image: newProduct.image || 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?q=80&w=200&auto=format&fit=crop',
+              description: newProduct.description || 'No description supplied.',
+              tags: []
+            }
+          ])
+          .select()
+          .single();
+        if (error) throw error;
+        generatedId = data.id;
+      } catch (err) {
+        console.error("DB add product error:", err.message)
+        showFeedback('Failed to add product to database.', 'error')
+        return
+      }
+    }
+
     const entry = {
-      id: `PROD-${Math.floor(107 + Math.random() * 900)}`,
+      id: generatedId,
       sku: skuCode,
       title: newProduct.title,
       price: parseFloat(newProduct.price),
@@ -605,12 +716,35 @@ export default function SellerDashboard() {
     showFeedback('Product successfully added to inventory!')
   }
 
-  const handleEditProductSubmit = (e) => {
+  const handleEditProductSubmit = async (e) => {
     e.preventDefault()
     if (!editingProduct.title || !editingProduct.price) {
       showFeedback('Title and price are required.', 'error')
       return
     }
+
+    if (isSupabaseLinked) {
+      try {
+        const { error } = await supabase
+          .from('products')
+          .update({
+            title: editingProduct.title,
+            price: parseFloat(editingProduct.price),
+            category: editingProduct.category,
+            stock_count: parseInt(editingProduct.stockCount) || 0,
+            brand: editingProduct.brand,
+            description: editingProduct.description,
+            image: editingProduct.image
+          })
+          .eq('id', editingProduct.id)
+        if (error) throw error
+      } catch (err) {
+        console.error("DB update product error:", err.message)
+        showFeedback('Failed to update product in database.', 'error')
+        return
+      }
+    }
+
     setProducts(products.map(p => p.id === editingProduct.id ? {
       ...editingProduct,
       price: parseFloat(editingProduct.price),
@@ -622,15 +756,48 @@ export default function SellerDashboard() {
     showFeedback('Product details saved successfully.')
   }
 
-  const handleDeleteProduct = (id, name) => {
+  const handleDeleteProduct = async (id, name) => {
     if (confirm(`Are you sure you want to delete ${name}?`)) {
+      if (isSupabaseLinked) {
+        try {
+          const { error } = await supabase
+            .from('products')
+            .delete()
+            .eq('id', id)
+          if (error) throw error
+        } catch (err) {
+          console.error("DB delete product error:", err.message)
+          showFeedback('Failed to delete product from database.', 'error')
+          return
+        }
+      }
       setProducts(products.filter(p => p.id !== id))
       showFeedback('Product listing removed.')
     }
   }
 
   // Order processing actions
-  const handleOrderStatusChange = (orderId, newStatus) => {
+  const handleOrderStatusChange = async (orderId, newStatus) => {
+    if (isSupabaseLinked) {
+      try {
+        let updatePayload = { status: newStatus }
+        const matched = orders.find(o => o.id === orderId)
+        if (newStatus === 'Shipped' && matched && !matched.trackingNumber) {
+          updatePayload.tracking_number = `IN-${Math.floor(10000+Math.random()*90000)}-TRK`
+        }
+        
+        const { error } = await supabase
+          .from('orders')
+          .update(updatePayload)
+          .eq('id', orderId)
+        if (error) throw error
+      } catch (err) {
+        console.error("DB order status update error:", err.message)
+        showFeedback('Failed to update order status in database.', 'error')
+        return
+      }
+    }
+
     setOrders(orders.map(o => {
       if (o.id === orderId) {
         let update = { status: newStatus }
@@ -703,12 +870,23 @@ export default function SellerDashboard() {
       setPayoutProgress(85)
     }, 2400)
 
-    setTimeout(() => {
+    setTimeout(async () => {
       const payoutAmount = walletBalance
-      const payoutId = `PAY-${Math.floor(10000 + Math.random() * 90000)}`
       const payoutAccount = bankDetails.payoutMethod === 'bank' 
         ? `${bankDetails.bankName} - *${bankDetails.accountNumber.slice(-4)}`
         : bankDetails.upiId
+
+      let payoutId = `PAY-${Math.floor(10000 + Math.random() * 90000)}`
+
+      if (isSupabaseLinked) {
+        try {
+          const res = await requestPayout(payoutAmount, bankDetails.payoutMethod === 'bank' ? 'Bank Transfer' : 'UPI Payout', payoutAccount)
+          payoutId = res.payoutId
+        } catch (err) {
+          console.error("DB request payout error:", err.message)
+          showFeedback('Failed to settle payout via API. Simulating locally instead.', 'warning')
+        }
+      }
 
       const newPayout = {
         id: payoutId,

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Filter, SlidersHorizontal, Smartphone, Tv, Shirt, Sparkles, Home as HomeIcon, Heart, Dumbbell, Baby, Car, BookOpen, ChevronDown, Shuffle } from 'lucide-react'
 import { useSearchParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import productsData from '../data/products.json'
+import { getProducts } from '../lib/db'
 import ProductCard from '../components/ProductCard'
 import EmptyState from '../components/EmptyState'
 import Pagination from '../components/Pagination'
@@ -51,16 +51,18 @@ export default function Category() {
   const handleCategoryChange = (newCat) => {
     if (newCat === 'All') {
       setSearchParams({})
-      setProducts(shuffleArray(productsData))
+      getProducts().then(data => setProducts(shuffleArray(data)))
     } else {
       setSearchParams({ category: newCat })
     }
   }
 
   useEffect(() => {
-    const shuffled = shuffleArray(productsData)
-    setProducts(shuffled)
-    setFiltered(shuffled)
+    getProducts().then(data => {
+      const shuffled = shuffleArray(data)
+      setProducts(shuffled)
+      setFiltered(shuffled)
+    })
   }, [])
 
   useEffect(() => {

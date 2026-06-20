@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { Check, CreditCard, Copy, Loader2, AlertCircle, ShieldCheck, Smartphone, QrCode } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useCartStore } from '../store/useCartStore'
+import { checkoutOrder } from '../lib/db'
+import { useAuthStore } from '../store/useAuthStore'
 
 export default function Checkout() {
   const [step, setStep] = useState(1) // 1: Address, 2: Payment, 3: Review
@@ -108,9 +110,36 @@ export default function Checkout() {
     else if (step === 2) setStep(3)
   }
 
-  const handlePlaceOrder = () => {
-    clearCart()
-    navigate('/order-confirmation')
+  const handlePlaceOrder = async () => {
+    try {
+      const user = useAuthStore.getState().user
+      const itemsPayload = items.map(item => ({
+        id: item.product.id,
+        quantity: item.quantity,
+        size: item.size
+      }))
+      
+      const res = await checkoutOrder({
+        customerId: user?.id,
+        items: itemsPayload,
+        shippingAddress: {
+          fullName: address.fullName,
+          street: address.street,
+          city: address.city,
+          zip: address.zip,
+          email: user?.email || 'guest@urbancart.com'
+        },
+        notes: `UTR Reference: ${utr}`
+      })
+      
+      if (res.success) {
+        clearCart()
+        navigate('/order-confirmation', { state: { orderId: res.orderId } })
+      }
+    } catch (err) {
+      console.error(err)
+      alert("Order placement failed: " + err.message)
+    }
   }
 
   if (items.length === 0 && step === 1) {

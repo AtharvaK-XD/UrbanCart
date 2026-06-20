@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, Smartphone, Tv, Shirt, Sparkles, Home as HomeIcon, Heart, Dumbbell, Baby, Car, BookOpen, Truck, ShieldCheck, RefreshCw, ChevronLeft, ChevronRight, Star } from 'lucide-react'
 import { motion, useScroll, useTransform } from 'framer-motion'
-import productsData from '../data/products.json'
+import { getProducts } from '../lib/db'
 import ProductCard from '../components/ProductCard'
 
 const CATEGORIES = [
@@ -38,7 +38,7 @@ export default function Home() {
   const carouselRef = useRef(null)
 
   useEffect(() => {
-    setProducts(productsData)
+    getProducts().then(setProducts)
   }, [])
 
   const deals = products.filter(p => p.tags?.includes('-25%') || p.tags?.includes('BESTSELLER'))
