@@ -42,24 +42,28 @@ export default function BecomeSeller() {
         // Fallback for mock environments / missing project configurations
       }
 
-      // 2. Update Zustand store role state
-      setRole('SELLER')
-
-      // 3. Update profile in Supabase
+      // 1. Update profile in Supabase first
       if (isSupabaseLinked && user) {
-        try {
-          await supabase
-            .from('profiles')
-            .update({ role: 'SELLER' })
-            .eq('id', user.id)
-            
-          await supabase.auth.updateUser({
-            data: { role: 'SELLER' }
-          })
-        } catch (supabaseErr) {
-          console.warn('Supabase role update error:', supabaseErr.message)
+        const { error: profileErr } = await supabase
+          .from('profiles')
+          .update({ role: 'SELLER' })
+          .eq('id', user.id)
+          
+        if (profileErr) {
+          throw new Error(`Database Sync Error: ${profileErr.message}`)
+        }
+          
+        const { error: authErr } = await supabase.auth.updateUser({
+          data: { role: 'SELLER' }
+        })
+        
+        if (authErr) {
+          throw new Error(`Auth Metadata Sync Error: ${authErr.message}`)
         }
       }
+
+      // 2. Update Zustand store role state
+      setRole('SELLER')
       
       // 3. Show success and navigate
       setShowToast(true)
@@ -69,7 +73,8 @@ export default function BecomeSeller() {
       }, 2000)
 
     } catch (err) {
-      setError('An error occurred while activating your seller account. Please try again.')
+      console.error('BecomeSeller submission error:', err)
+      setError(err.message || 'An error occurred while activating your seller account. Please try again.')
       setSubmitting(false)
     }
   }

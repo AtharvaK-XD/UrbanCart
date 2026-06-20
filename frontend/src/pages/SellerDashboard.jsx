@@ -312,6 +312,36 @@ export default function SellerDashboard() {
     async function fetchDatabaseData() {
       if (isSupabaseLinked && user) {
         try {
+          // Check profile role to see if it's out-of-sync
+          const { data: dbProfile, error: profileErr } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', user.id)
+            .single()
+
+          if (profileErr) {
+            console.error('Error fetching database profile:', profileErr)
+            showFeedback(`Profile Fetch Error: ${profileErr.message}`, 'error')
+          } else if (dbProfile && dbProfile.role !== 'SELLER') {
+            console.log('Detecting out-of-sync profile role. Attempting auto-sync...')
+            const { error: syncErr } = await supabase
+              .from('profiles')
+              .update({ role: 'SELLER' })
+              .eq('id', user.id)
+
+            const { error: authSyncErr } = await supabase.auth.updateUser({
+              data: { role: 'SELLER' }
+            })
+
+            if (!syncErr && !authSyncErr) {
+              showFeedback('Seller status successfully synced with database!')
+            } else {
+              const errMsg = (syncErr?.message || '') + ' ' + (authSyncErr?.message || '')
+              console.error('Failed to auto-sync seller role:', syncErr, authSyncErr)
+              showFeedback(`Auto-Sync Failed: ${errMsg}`, 'error')
+            }
+          }
+
           // Fetch products
           const { data: dbProducts, error: prodErr } = await supabase
             .from('products')
@@ -667,8 +697,8 @@ export default function SellerDashboard() {
         if (error) throw error;
         generatedId = data.id;
       } catch (err) {
-        console.error("DB add product error:", err.message)
-        showFeedback('Failed to add product to database.', 'error')
+        console.error("DB add product error:", err)
+        showFeedback(`Failed to add product to database: ${err.message}`, 'error')
         return
       }
     }
