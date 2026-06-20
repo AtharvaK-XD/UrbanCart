@@ -115,7 +115,7 @@ export default function Auth() {
           <button
             type="button"
             onClick={handleGoogleLogin}
-            className="w-full flex justify-center items-center gap-3.5 py-4 px-4 border border-line/65 rounded-xl shadow-xs text-xs font-bold uppercase tracking-wider text-ink bg-surface hover:bg-background transition-colors focus:outline-none focus:ring-1 focus:ring-jade"
+            className="w-full flex justify-center items-center gap-3.5 py-4 px-4 border border-transparent rounded-xl shadow-md text-xs font-bold uppercase tracking-wider text-surface bg-ink hover:bg-jade transition-colors duration-300 focus:outline-none focus:ring-1 focus:ring-jade"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
