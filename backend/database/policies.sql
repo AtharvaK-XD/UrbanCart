@@ -30,31 +30,19 @@ CREATE POLICY "Products are readable by everyone" ON public.products
 DROP POLICY IF EXISTS "Sellers can create products" ON public.products;
 CREATE POLICY "Sellers can create products" ON public.products
     FOR INSERT WITH CHECK (
-        auth.uid() = seller_id AND 
-        EXISTS (
-            SELECT 1 FROM public.profiles 
-            WHERE id = auth.uid() AND role = 'SELLER'
-        )
+        auth.uid() = seller_id
     );
 
 DROP POLICY IF EXISTS "Sellers can update their own products" ON public.products;
 CREATE POLICY "Sellers can update their own products" ON public.products
     FOR UPDATE USING (
-        auth.uid() = seller_id AND 
-        EXISTS (
-            SELECT 1 FROM public.profiles 
-            WHERE id = auth.uid() AND role = 'SELLER'
-        )
+        auth.uid() = seller_id
     );
 
 DROP POLICY IF EXISTS "Sellers can delete their own products" ON public.products;
 CREATE POLICY "Sellers can delete their own products" ON public.products
     FOR DELETE USING (
-        auth.uid() = seller_id AND 
-        EXISTS (
-            SELECT 1 FROM public.profiles 
-            WHERE id = auth.uid() AND role = 'SELLER'
-        )
+        auth.uid() = seller_id
     );
 
 -- ------------------------------------------
