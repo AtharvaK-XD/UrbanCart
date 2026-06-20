@@ -3107,7 +3107,7 @@ export default function SellerDashboard() {
 
               <div className="space-y-2">
                 <span className="text-[9px] uppercase tracking-wider font-bold text-slate-400 block">Purchased Products</span>
-                <div className="border border-line rounded-lg overflow-hidden">
+                <div className="border border-line rounded-lg overflow-x-auto">
                   <table className="w-full text-left font-medium border-collapse">
                     <thead className="bg-slate-50 border-b border-line text-[9px] uppercase tracking-wider text-slate-400">
                       <tr>
@@ -3246,7 +3246,7 @@ export default function SellerDashboard() {
                   <span className="text-slate-500 block font-mono">{selectedOrder.email}</span>
                 </div>
               </div>
-              <div className="border border-line rounded-lg overflow-hidden my-4 text-[10px]">
+              <div className="border border-line rounded-lg overflow-x-auto my-4 text-[10px]">
                 <table className="w-full text-left border-collapse">
                   <thead className="bg-slate-50 border-b border-line text-slate-450 font-bold uppercase">
                     <tr>

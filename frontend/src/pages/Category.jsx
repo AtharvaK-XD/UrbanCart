@@ -309,7 +309,7 @@ export default function Category() {
               {/* Product Grid with layout animations */}
               <motion.div 
                 layout 
-                className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6"
+                className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 sm:gap-6"
               >
                 <AnimatePresence mode="popLayout">
                   {currentItems.map(product => (

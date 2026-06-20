@@ -270,7 +270,7 @@ export default function Chatbot() {
   return (
     <>
       {/* Floating Toggle Button (Bottom Right) */}
-      <div className="fixed bottom-6 right-6 z-50">
+      <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50">
         <motion.button
           onClick={() => setIsOpen(!isOpen)}
           whileHover={{ scale: 1.1, boxShadow: '0 0 15px rgba(5, 150, 105, 0.4)' }}
@@ -301,7 +301,7 @@ export default function Chatbot() {
             animate={{ opacity: 1, scale: 1, y: 0, x: 0 }}
             exit={{ opacity: 0, scale: 0.85, y: 50, x: 20 }}
             transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-            className="fixed bottom-24 right-6 z-50 w-[380px] sm:w-[400px] h-[550px] max-h-[calc(100vh-120px)] flex flex-col bg-surface border border-line rounded-2xl shadow-2xl overflow-hidden glass-header"
+            className="fixed bottom-20 right-4 sm:bottom-24 sm:right-6 z-50 w-[calc(100vw-32px)] sm:w-[400px] h-[550px] max-h-[calc(100vh-120px)] flex flex-col bg-surface border border-line rounded-2xl shadow-2xl overflow-hidden glass-header"
           >
             {/* Header Block */}
             <div className="bg-ink text-surface p-4 flex items-center justify-between border-b border-line">

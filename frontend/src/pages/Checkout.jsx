@@ -10,7 +10,7 @@ export default function Checkout() {
   const [step, setStep] = useState(1) // 1: Address, 2: Payment, 3: Review
   const navigate = useNavigate()
   const { items, getCartTotal, clearCart } = useCartStore()
-  
+
   const [address, setAddress] = useState({ fullName: '', street: '', city: '', zip: '' })
   const [errors, setErrors] = useState({})
 
@@ -100,7 +100,7 @@ export default function Checkout() {
     if (!address.street.trim()) newErrors.street = 'Street address is required'
     if (!address.city.trim()) newErrors.city = 'City is required'
     if (!address.zip.trim() || !/^\d{5,6}(-\d{4})?$/.test(address.zip)) newErrors.zip = 'Valid ZIP code is required'
-    
+
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -118,7 +118,7 @@ export default function Checkout() {
         quantity: item.quantity,
         size: item.size
       }))
-      
+
       const res = await checkoutOrder({
         customerId: user?.id,
         items: itemsPayload,
@@ -131,7 +131,7 @@ export default function Checkout() {
         },
         notes: `UTR Reference: ${utr}`
       })
-      
+
       if (res.success) {
         clearCart()
         navigate('/order-confirmation', { state: { orderId: res.orderId } })
@@ -160,7 +160,7 @@ export default function Checkout() {
         {/* Background Track Line */}
         <div className="absolute left-6 right-6 top-5 h-[3px] bg-line -translate-y-1/2 rounded-full overflow-hidden">
           {/* Animated Progress Line */}
-          <motion.div 
+          <motion.div
             className="h-full bg-jade"
             initial={{ width: "0%" }}
             animate={{ width: step === 1 ? "0%" : step === 2 ? "50%" : "100%" }}
@@ -177,11 +177,11 @@ export default function Checkout() {
           ].map((s) => {
             const isActive = step >= s.num
             const isCompleted = step > s.num
-            
+
             return (
               <div key={s.num} className="flex flex-col items-center gap-3">
                 {/* Node Circle */}
-                <motion.div 
+                <motion.div
                   initial={false}
                   animate={{
                     backgroundColor: isCompleted || isActive ? "var(--color-jade, #059669)" : "var(--color-surface, #ffffff)",
@@ -190,9 +190,8 @@ export default function Checkout() {
                     boxShadow: step === s.num ? "0 0 15px rgba(5, 150, 105, 0.3)" : "none"
                   }}
                   transition={{ duration: 0.3 }}
-                  className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm border-2 ${
-                    isActive ? 'text-surface' : 'text-ink opacity-50 bg-surface'
-                  } relative`}
+                  className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm border-2 ${isActive ? 'text-surface' : 'text-ink opacity-50 bg-surface'
+                    } relative`}
                 >
                   {isCompleted ? (
                     <motion.div
@@ -213,7 +212,7 @@ export default function Checkout() {
                 </motion.div>
 
                 {/* Node Label */}
-                <motion.span 
+                <motion.span
                   animate={{
                     color: isActive ? "var(--color-ink, #0f172a)" : "var(--color-ink-light, #64748b)",
                     fontWeight: isActive ? 600 : 400,
@@ -236,20 +235,20 @@ export default function Checkout() {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Full Name</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={address.fullName}
-                  onChange={e => { setAddress({...address, fullName: e.target.value}); if(errors.fullName) setErrors({...errors, fullName: ''}) }}
+                  onChange={e => { setAddress({ ...address, fullName: e.target.value }); if (errors.fullName) setErrors({ ...errors, fullName: '' }) }}
                   className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-1 ${errors.fullName ? 'border-amber focus:ring-amber' : 'border-line focus:ring-jade'}`}
                 />
                 {errors.fullName && <p className="text-amber text-xs mt-1">{errors.fullName}</p>}
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Street Address</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={address.street}
-                  onChange={e => { setAddress({...address, street: e.target.value}); if(errors.street) setErrors({...errors, street: ''}) }}
+                  onChange={e => { setAddress({ ...address, street: e.target.value }); if (errors.street) setErrors({ ...errors, street: '' }) }}
                   className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-1 ${errors.street ? 'border-amber focus:ring-amber' : 'border-line focus:ring-jade'}`}
                 />
                 {errors.street && <p className="text-amber text-xs mt-1">{errors.street}</p>}
@@ -257,20 +256,20 @@ export default function Checkout() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-1">City</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     value={address.city}
-                    onChange={e => { setAddress({...address, city: e.target.value}); if(errors.city) setErrors({...errors, city: ''}) }}
+                    onChange={e => { setAddress({ ...address, city: e.target.value }); if (errors.city) setErrors({ ...errors, city: '' }) }}
                     className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-1 ${errors.city ? 'border-amber focus:ring-amber' : 'border-line focus:ring-jade'}`}
                   />
                   {errors.city && <p className="text-amber text-xs mt-1">{errors.city}</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">ZIP Code</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     value={address.zip}
-                    onChange={e => { setAddress({...address, zip: e.target.value}); if(errors.zip) setErrors({...errors, zip: ''}) }}
+                    onChange={e => { setAddress({ ...address, zip: e.target.value }); if (errors.zip) setErrors({ ...errors, zip: '' }) }}
                     className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-1 ${errors.zip ? 'border-amber focus:ring-amber' : 'border-line focus:ring-jade'}`}
                   />
                   {errors.zip && <p className="text-amber text-xs mt-1">{errors.zip}</p>}
@@ -330,8 +329,8 @@ export default function Checkout() {
                   <p className="text-sm opacity-70 max-w-sm mb-6">
                     For security, your transaction session has expired. Please restart the checkout process.
                   </p>
-                  <button 
-                    onClick={() => { setStep(1); setTimeLeft(300); }} 
+                  <button
+                    onClick={() => { setStep(1); setTimeLeft(300); }}
                     className="bg-ink text-surface px-6 py-2.5 rounded-md font-medium hover:bg-opacity-90"
                   >
                     Restart Checkout
@@ -339,12 +338,12 @@ export default function Checkout() {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
-                  
+
                   {/* Left Column: Instructions and copying VPA */}
                   <div className="md:col-span-7 space-y-6">
                     <div className="space-y-4">
                       <h3 className="font-bold text-sm uppercase tracking-wider text-ink opacity-60">Payment Details</h3>
-                      
+
                       {/* Merchant/Payee Card */}
                       <div className="p-4 border border-line rounded-md bg-background space-y-3">
                         <div className="flex justify-between items-center text-sm">
@@ -364,7 +363,7 @@ export default function Checkout() {
                             <span className="text-[10px] uppercase font-bold opacity-60">UPI ID / VPA</span>
                             <span className="text-sm font-mono font-bold">{payeeVpa}</span>
                           </div>
-                          <button 
+                          <button
                             onClick={handleCopyVpa}
                             className="flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 border border-line rounded bg-surface hover:bg-background transition"
                           >
@@ -403,7 +402,7 @@ export default function Checkout() {
                     {/* QR Desktop Frame */}
                     <div className="hidden md:flex flex-col items-center w-full">
                       <div className="p-3 bg-white rounded-md border border-line shadow-sm mb-4">
-                        <img 
+                        <img
                           src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(
                             `upi://pay?pa=${payeeVpa}&pn=${encodeURIComponent(payeeName)}&tr=${txnRef}&am=${finalTotal.toFixed(2)}&cu=INR&tn=${encodeURIComponent("Order " + txnRef)}`
                           )}`}
@@ -421,7 +420,7 @@ export default function Checkout() {
 
                     {/* Mobile Direct Pay Button */}
                     <div className="md:hidden w-full mb-6">
-                      <a 
+                      <a
                         href={`upi://pay?pa=${payeeVpa}&pn=${encodeURIComponent(payeeName)}&tr=${txnRef}&am=${finalTotal.toFixed(2)}&cu=INR&tn=${encodeURIComponent("Order " + txnRef)}`}
                         className="w-full bg-jade text-surface px-5 py-3 rounded-md font-bold text-center hover:bg-opacity-95 flex items-center justify-center gap-2 shadow-sm transition"
                       >
@@ -457,19 +456,19 @@ export default function Checkout() {
                   <div className="bg-surface p-4 border border-line rounded-md max-w-md mx-auto">
                     <label className="block text-sm font-bold mb-1.5">Enter 12-Digit UPI Ref / UTR No.</label>
                     <div className="flex gap-2">
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         maxLength={12}
                         value={utr}
                         onChange={e => {
                           setUtr(e.target.value.replace(/\D/g, ''));
-                          if(utrError) setUtrError('');
+                          if (utrError) setUtrError('');
                         }}
                         placeholder="e.g. 629854129841"
                         className={`font-mono text-sm w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-1 ${utrError ? 'border-amber focus:ring-amber' : 'border-line focus:ring-jade'}`}
                       />
-                      <button 
-                        onClick={handleVerifyPayment} 
+                      <button
+                        onClick={handleVerifyPayment}
                         disabled={isVerifying}
                         className="bg-jade text-surface px-4 py-2 rounded-md text-sm font-bold hover:bg-opacity-90 transition shrink-0 flex items-center justify-center"
                       >
@@ -481,8 +480,8 @@ export default function Checkout() {
 
                   {/* Back button */}
                   <div className="flex justify-start">
-                    <button 
-                      onClick={() => setStep(1)} 
+                    <button
+                      onClick={() => setStep(1)}
                       className="px-6 py-2 rounded-md font-medium text-ink opacity-70 hover:opacity-100"
                     >
                       Back
@@ -523,8 +522,8 @@ export default function Checkout() {
               <div className="border border-line rounded-md overflow-hidden">
                 <div className="bg-background px-4 py-3 border-b border-line font-medium text-sm">Shipping To</div>
                 <div className="p-4 text-sm opacity-80">
-                  {address.fullName}<br/>
-                  {address.street}<br/>
+                  {address.fullName}<br />
+                  {address.street}<br />
                   {address.city}, {address.zip}
                 </div>
               </div>

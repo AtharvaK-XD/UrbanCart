@@ -151,7 +151,7 @@ export default function Home() {
       </section>
 
       {/* Premium Categories Grid */}
-      <section className="py-24 bg-background/50 relative">
+      <section className="py-12 md:py-24 bg-background/50 relative">
         <div className="max-w-[1800px] mx-auto px-4 sm:px-8 lg:px-12 w-full">
           <div className="text-center mb-16">
             <span className="text-jade uppercase tracking-[0.2em] text-[10px] font-bold block mb-2">Explore Departments</span>
@@ -197,7 +197,7 @@ export default function Home() {
       </section>
 
       {/* Signature Collections Swipe List */}
-      <section className="py-24 bg-surface border-y border-line/45 relative">
+      <section className="py-12 md:py-24 bg-surface border-y border-line/45 relative">
         <div className="max-w-[1800px] mx-auto px-4 sm:px-8 lg:px-12 w-full">
           
           <div className="flex items-end justify-between mb-12 pb-6 border-b border-line/35">
@@ -239,7 +239,7 @@ export default function Home() {
       </section>
 
       {/* New Arrivals Grid Section */}
-      <section className="py-24 bg-background/30">
+      <section className="py-12 md:py-24 bg-background/30">
         <div className="max-w-[1800px] mx-auto px-4 sm:px-8 lg:px-12 w-full">
           <div className="text-center mb-16">
             <span className="text-jade uppercase tracking-[0.2em] text-[10px] font-bold block mb-2">Just Landed</span>
@@ -247,7 +247,7 @@ export default function Home() {
             <div className="h-[2px] w-12 bg-jade mx-auto mt-4 rounded-full"></div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-8">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-8">
             {featured.map(product => (
               <ProductCard key={product.id} product={product} />
             ))}
