@@ -24,6 +24,14 @@ export const useAuthStore = create((set, get) => ({
           supabase.auth.updateUser({
             data: { role: currentRole }
           })
+          // Sync role to public.profiles table
+          supabase
+            .from('profiles')
+            .update({ role: currentRole })
+            .eq('id', user.id)
+            .then(({ error }) => {
+              if (error) console.warn('Failed to sync profile role to database:', error.message)
+            })
           localStorage.removeItem('pending_auth_role')
         } else {
           // Otherwise, read it from their existing metadata

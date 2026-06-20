@@ -26,5 +26,5 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- Bind the trigger function to the auth.users table
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
-  AFTER INSERT ON auth.users
+  AFTER INSERT OR UPDATE OF raw_user_meta_data ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
