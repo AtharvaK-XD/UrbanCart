@@ -21,9 +21,9 @@ async function check() {
   const { data: profiles, error } = await supabase
     .from('profiles')
     .select('*')
-    .eq('email', '25beceg130@svitvasad.ac.in');
+    .eq('email', 'kulkarniatharva529@gmail.com');
     
-  console.log('Profiles for 25beceg130@svitvasad.ac.in:', profiles, error);
+  console.log('Profile for kulkarniatharva529@gmail.com:', profiles, error);
 }
 
 check();
