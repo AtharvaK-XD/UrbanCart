@@ -701,7 +701,7 @@ export default function SellerDashboard() {
         generatedId = data.id;
       } catch (err) {
         console.error("DB add product error:", err)
-        showFeedback(`Failed to add product to database: ${err.message}`, 'error')
+        showFeedback(`Failed to add product (Logged in as: ${user?.email}): ${err.message}`, 'error')
         return
       }
     }
