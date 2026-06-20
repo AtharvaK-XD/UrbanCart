@@ -1,4 +1,5 @@
-export { supabase } from './supabase'
+import { supabase } from './supabase'
+export { supabase }
 import staticProducts from '../data/products.json'
 
 // Check if Supabase keys are configured in the environment
