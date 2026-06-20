@@ -289,7 +289,7 @@ function AnimatedNumber({ value, isCurrency = false }) {
 }
 
 export default function SellerDashboard() {
-  const { user } = useAuthStore()
+  const { user, role } = useAuthStore()
   
   // Dashboard configuration tabs: dashboard, inventory, orders, payments, customers, settings
   const [activeTab, setActiveTab] = useState('dashboard')
