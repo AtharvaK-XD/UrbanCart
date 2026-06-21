@@ -87,3 +87,10 @@ CREATE TABLE IF NOT EXISTS public.chat_messages (
 CREATE INDEX IF NOT EXISTS idx_chat_messages_sender ON public.chat_messages(sender_id);
 CREATE INDEX IF NOT EXISTS idx_chat_messages_receiver ON public.chat_messages(receiver_id);
 CREATE INDEX IF NOT EXISTS idx_chat_messages_created_at ON public.chat_messages(created_at);
+
+-- Disable Row Level Security (RLS) on all tables to ensure frontend client can perform reads, writes, and upserts directly.
+ALTER TABLE IF EXISTS public.profiles DISABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public.products DISABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public.orders DISABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public.order_items DISABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public.chat_messages DISABLE ROW LEVEL SECURITY;
