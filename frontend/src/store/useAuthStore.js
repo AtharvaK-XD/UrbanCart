@@ -24,19 +24,24 @@ export const useAuthStore = create((set, get) => ({
           supabase.auth.updateUser({
             data: { role: currentRole }
           })
-          // Sync role to public.profiles table
-          supabase
-            .from('profiles')
-            .update({ role: currentRole })
-            .eq('id', user.id)
-            .then(({ error }) => {
-              if (error) console.warn('Failed to sync profile role to database:', error.message)
-            })
           localStorage.removeItem('pending_auth_role')
         } else {
           // Otherwise, read it from their existing metadata
           currentRole = user.user_metadata?.role || 'BUYER'
         }
+
+        // Sync/Upsert user profile to public.profiles table to ensure it always exists in database
+        supabase
+          .from('profiles')
+          .upsert({
+            id: user.id,
+            email: user.email,
+            full_name: user.user_metadata?.full_name || user.email.split('@')[0],
+            role: currentRole
+          })
+          .then(({ error }) => {
+            if (error) console.warn('Failed to sync profile to database:', error.message)
+          })
 
         set({ 
           user: { 

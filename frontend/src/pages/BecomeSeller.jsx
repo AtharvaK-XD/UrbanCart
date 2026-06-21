@@ -42,12 +42,16 @@ export default function BecomeSeller() {
         // Fallback for mock environments / missing project configurations
       }
 
-      // 1. Update profile in Supabase first
+      // 1. Update/Upsert profile in Supabase first
       if (isSupabaseLinked && user) {
         const { error: profileErr } = await supabase
           .from('profiles')
-          .update({ role: 'SELLER' })
-          .eq('id', user.id)
+          .upsert({
+            id: user.id,
+            email: user.email,
+            full_name: user.name || user.email.split('@')[0],
+            role: 'SELLER'
+          })
           
         if (profileErr) {
           throw new Error(`Database Sync Error: ${profileErr.message}`)

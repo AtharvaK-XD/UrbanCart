@@ -325,7 +325,26 @@ export default function SellerDashboard() {
 
           if (profileErr) {
             console.error('Error fetching database profile:', profileErr)
-            showFeedback(`Profile Fetch Error: ${profileErr.message}`, 'error')
+            if (profileErr.code === 'PGRST116' || profileErr.message?.includes('single JSON object') || profileErr.message?.includes('coerced')) {
+              // Profile doesn't exist, create it!
+              console.log('Profile row missing. Auto-creating profile...')
+              const { error: insertErr } = await supabase
+                .from('profiles')
+                .upsert({
+                  id: user.id,
+                  email: user.email,
+                  full_name: user.name || user.email.split('@')[0],
+                  role: 'SELLER'
+                })
+              if (!insertErr) {
+                showFeedback('Seller profile registered in database successfully!')
+              } else {
+                console.error('Failed to create profile row:', insertErr.message)
+                showFeedback(`Profile Create Failed: ${insertErr.message}`, 'error')
+              }
+            } else {
+              showFeedback(`Profile Fetch Error: ${profileErr.message}`, 'error')
+            }
           } else if (dbProfile && dbProfile.role !== 'SELLER') {
             console.log('Detecting out-of-sync profile role. Attempting auto-sync...')
             const { error: syncErr } = await supabase
