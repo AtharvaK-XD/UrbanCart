@@ -1,6 +1,7 @@
 import { supabase } from './supabase'
 export { supabase }
 import staticProducts from '../data/products.json'
+import { useAuthStore } from '../store/useAuthStore'
 
 // Check if Supabase keys are configured in the environment
 export const isSupabaseLinked = !!import.meta.env.VITE_SUPABASE_URL && !!import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -12,7 +13,8 @@ console.log(isSupabaseLinked ? "UrbanCart: Supabase configuration linked." : "Ur
 // ==========================================
 
 export async function getProducts() {
-  if (!isSupabaseLinked) return staticProducts;
+  const role = useAuthStore.getState().role;
+  if (!isSupabaseLinked || role === 'BUYER') return staticProducts;
   
   try {
     const { data, error } = await supabase
@@ -48,7 +50,8 @@ export async function getProducts() {
 }
 
 export async function getProductById(id) {
-  if (!isSupabaseLinked) {
+  const role = useAuthStore.getState().role;
+  if (!isSupabaseLinked || role === 'BUYER') {
     return staticProducts.find(p => p.id === id) || null;
   }
 
@@ -90,22 +93,37 @@ export async function getProductById(id) {
 // ==========================================
 
 export async function checkoutOrder({ customerId, items, shippingAddress, notes }) {
-  if (!isSupabaseLinked) {
+  const role = useAuthStore.getState().role;
+  if (!isSupabaseLinked || role === 'BUYER') {
     // Local storage order simulation
     const ordersKey = customerId ? `buyer_orders_${customerId}` : 'buyer_orders_anonymous';
     const saved = localStorage.getItem(ordersKey);
     const existingOrders = saved ? JSON.parse(saved) : [];
     
     const mockOrderId = `ORD-${Math.floor(1000 + Math.random() * 9000)}`;
+    
+    // Resolve product details from staticProducts if they are missing
+    const resolvedItems = items.map(item => {
+      let product = item.product;
+      if (!product) {
+        product = staticProducts.find(p => p.id === (item.id || item.product_id));
+      }
+      return {
+        product,
+        quantity: item.quantity,
+        size: item.size
+      };
+    }).filter(x => x.product);
+
     const newOrder = {
       id: mockOrderId,
-      total: items.reduce((sum, item) => sum + item.product.price * item.quantity, 0),
+      total: resolvedItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0),
       status: 'Processing',
       shipping_address: shippingAddress,
       notes: notes || '',
       tracking_number: '',
       created_at: new Date().toISOString(),
-      items: items.map(item => ({
+      items: resolvedItems.map(item => ({
         product_id: item.product.id,
         title: item.product.title,
         quantity: item.quantity,
@@ -146,7 +164,8 @@ export async function checkoutOrder({ customerId, items, shippingAddress, notes 
 }
 
 export async function getOrders(userId, isSeller = false) {
-  if (!isSupabaseLinked) {
+  const role = useAuthStore.getState().role;
+  if (!isSupabaseLinked || (!isSeller && role === 'BUYER')) {
     const key = isSeller ? 'seller_orders' : `buyer_orders_${userId}`;
     const saved = localStorage.getItem(key);
     return saved ? JSON.parse(saved) : [];
