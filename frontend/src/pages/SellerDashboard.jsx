@@ -39,7 +39,8 @@ import {
   HelpCircle,
   TrendingDown,
   Sun,
-  Moon
+  Moon,
+  Upload
 } from 'lucide-react'
 import { useAuthStore } from '../store/useAuthStore'
 import { supabase, isSupabaseLinked, getOrders, requestPayout } from '../lib/db'
@@ -665,6 +666,57 @@ export default function SellerDashboard() {
     }
     setProducts(products.map(p => p.id === id ? { ...p, price: parsed } : p))
     showFeedback('Price updated successfully!')
+  }
+
+  const handleImageUpload = (e, mode) => {
+    const file = e.target.files[0]
+    if (!file) return
+
+    if (file.size > 5 * 1024 * 1024) {
+      showFeedback('Image file is too large. Max limit is 5MB.', 'error')
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      const img = new Image()
+      img.src = reader.result
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        const MAX_WIDTH = 800
+        const MAX_HEIGHT = 600
+        let width = img.width
+        let height = img.height
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width
+            width = MAX_WIDTH
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height
+            height = MAX_HEIGHT
+          }
+        }
+
+        canvas.width = width
+        canvas.height = height
+
+        const ctx = canvas.getContext('2d')
+        ctx.drawImage(img, 0, 0, width, height)
+
+        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7)
+        
+        if (mode === 'add') {
+          setNewProduct(prev => ({ ...prev, image: compressedBase64 }))
+        } else if (mode === 'edit') {
+          setEditingProduct(prev => ({ ...prev, image: compressedBase64 }))
+        }
+        showFeedback('Photo uploaded and optimized successfully!')
+      }
+    }
+    reader.readAsDataURL(file)
   }
 
   const handleAddProduct = async (e) => {
@@ -3407,14 +3459,35 @@ export default function SellerDashboard() {
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Direct Image URL</label>
-                <input 
-                  type="text" 
-                  placeholder="Paste direct image link..."
-                  value={newProduct.image}
-                  onChange={e => setNewProduct({ ...newProduct, image: e.target.value })}
-                  className="w-full border border-line bg-slate-50/50 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-emerald-700 font-mono"
-                />
+                <div className="flex justify-between items-center">
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Product Image</label>
+                  <span className="text-[9px] text-slate-400">(URL or Upload)</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <input 
+                    type="text" 
+                    placeholder="Paste image URL..."
+                    value={newProduct.image}
+                    onChange={e => setNewProduct({ ...newProduct, image: e.target.value })}
+                    className="w-full border border-line bg-slate-50/50 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-emerald-700 font-mono text-xs"
+                  />
+                  <div className="relative">
+                    <input 
+                      type="file" 
+                      accept="image/*"
+                      onChange={e => handleImageUpload(e, 'add')}
+                      className="hidden"
+                      id="add-image-upload"
+                    />
+                    <label 
+                      htmlFor="add-image-upload"
+                      className="w-full border border-dashed border-line hover:border-emerald-700 hover:bg-slate-50/50 transition-colors rounded-lg px-3 py-2.5 flex items-center justify-center gap-1.5 cursor-pointer text-xs font-semibold text-slate-600"
+                    >
+                      <Upload size={14} className="text-emerald-700" />
+                      <span>Upload Photo</span>
+                    </label>
+                  </div>
+                </div>
                 <div className="h-24 border border-line bg-slate-50 rounded-lg overflow-hidden flex items-center justify-center relative">
                   {newProduct.image ? (
                     <img src={newProduct.image} alt="Preview" className="w-full h-full object-cover" onError={e => {
@@ -3541,15 +3614,43 @@ export default function SellerDashboard() {
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Direct Image URL</label>
-                <input 
-                  type="text" 
-                  value={editingProduct.image}
-                  onChange={e => setEditingProduct({ ...editingProduct, image: e.target.value })}
-                  className="w-full border border-line bg-slate-50/50 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-emerald-700 font-mono"
-                />
+                <div className="flex justify-between items-center">
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Product Image</label>
+                  <span className="text-[9px] text-slate-400">(URL or Upload)</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <input 
+                    type="text" 
+                    placeholder="Paste image URL..."
+                    value={editingProduct.image}
+                    onChange={e => setEditingProduct({ ...editingProduct, image: e.target.value })}
+                    className="w-full border border-line bg-slate-50/50 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-emerald-700 font-mono text-xs"
+                  />
+                  <div className="relative">
+                    <input 
+                      type="file" 
+                      accept="image/*"
+                      onChange={e => handleImageUpload(e, 'edit')}
+                      className="hidden"
+                      id="edit-image-upload"
+                    />
+                    <label 
+                      htmlFor="edit-image-upload"
+                      className="w-full border border-dashed border-line hover:border-emerald-700 hover:bg-slate-50/50 transition-colors rounded-lg px-3 py-2.5 flex items-center justify-center gap-1.5 cursor-pointer text-xs font-semibold text-slate-600"
+                    >
+                      <Upload size={14} className="text-emerald-700" />
+                      <span>Upload Photo</span>
+                    </label>
+                  </div>
+                </div>
                 <div className="h-24 border border-line bg-slate-50 rounded-lg overflow-hidden flex items-center justify-center relative">
-                  <img src={editingProduct.image} alt="Preview" className="w-full h-full object-cover" />
+                  {editingProduct.image ? (
+                    <img src={editingProduct.image} alt="Preview" className="w-full h-full object-cover" onError={e => {
+                      e.target.style.display = 'none'
+                    }} />
+                  ) : (
+                    <span className="text-[10px] text-slate-400 font-bold">Image preview appears here</span>
+                  )}
                 </div>
               </div>
               <div>
