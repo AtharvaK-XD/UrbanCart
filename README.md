@@ -128,11 +128,3 @@ npm run dev
 Open your browser and navigate to `http://localhost:5173`.
 
 ---
-
-## 🛡️ License
-
-<<<<<<< HEAD
-Distributed under the MIT License. See `LICENSE` for more information.
-=======
-Distributed under the MIT License. See `LICENSE` for more information.
->>>>>>> 8cdeb420f03dbf1d0d42cc47885f930b5bb35918
