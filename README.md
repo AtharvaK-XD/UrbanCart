@@ -13,6 +13,14 @@
 
 ---
 
+## 🎬 Demo Walkthrough
+
+> Click the thumbnail below to watch the full project walkthrough on YouTube.
+
+[![UrbanCart Demo](https://img.youtube.com/vi/uNucc0Up0gE/maxresdefault.jpg)](https://www.youtube.com/watch?v=uNucc0Up0gE)
+
+---
+
 ## 🌟 Core Idea & Product Vision
 
 UrbanCart is built on the philosophy of **premium curation**. Instead of overwhelming consumers with standard, cluttered grid designs, UrbanCart presents a high-end, visual-first space for high-quality goods, designer apparel, and home essentials. 
@@ -96,11 +104,7 @@ Follow these steps to run the application locally:
 
 ### 1. Clone the project and enter the directory
 ```bash
-<<<<<<< HEAD
-git clone https://github.com/your-username/UrbanCart.git
-=======
 git clone https://github.com/AtharvaK-XD/UrbanCart.git
->>>>>>> 8cdeb420f03dbf1d0d42cc47885f930b5bb35918
 cd UrbanCart/frontend
 ```
 
